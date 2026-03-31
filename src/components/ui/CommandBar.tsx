@@ -1,0 +1,91 @@
+"use client";
+import { Sparkles, Send, Loader2, Camera, X } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { useStore } from '@/context/StoreContext';
+
+export default function CommandBar() {
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [aiResponse, setAiResponse] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { setDiscount } = useStore();
+
+  const handleAsk = async () => {
+    if (!input && !image) return;
+    setLoading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append("message", input || "Analyze this image and recommend a product.");
+      if (image) formData.append("image", image);
+
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        body: formData, // Sending as FormData for image support
+      });
+      
+      const data = await res.json();
+      setAiResponse(data.text);
+
+      if (data.text.includes("10%")) setDiscount(10);
+      if (data.text.includes("15%")) setDiscount(15);
+    } catch (error) {
+      console.error("Upload Error:", error);
+    } finally {
+      setLoading(false);
+      setInput("");
+      setImage(null);
+    }
+  };
+
+  return (
+    <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-xl px-4 z-50">
+      {aiResponse && (
+        <div className="mb-4 p-5 bg-white/95 backdrop-blur-md border border-zinc-200 rounded-2xl shadow-2xl text-sm leading-relaxed animate-in fade-in slide-in-from-bottom-4">
+           <span className="font-bold text-purple-600 block mb-1 underline decoration-purple-200 uppercase text-[10px] tracking-widest">AI Stylist</span>
+          {aiResponse}
+        </div>
+      )}
+
+      <div className="bg-white/80 backdrop-blur-xl border border-zinc-200 shadow-2xl rounded-2xl p-2 flex items-center gap-2 group transition-all duration-300">
+        
+        {/* 📸 Image Upload Logic */}
+        <button 
+          onClick={() => fileInputRef.current?.click()}
+          className={`p-2 rounded-xl transition-colors ${image ? 'bg-green-100 text-green-600' : 'bg-zinc-100 text-zinc-500 hover:bg-zinc-200'}`}
+        >
+          <Camera className="w-5 h-5" />
+        </button>
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          className="hidden" 
+          onChange={(e) => setImage(e.target.files?.[0] || null)}
+        />
+
+        <input 
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
+          placeholder={image ? `Image "${image.name}" attached...` : "Ask for a deal..."} 
+          className="flex-1 bg-transparent outline-none text-sm p-2"
+        />
+
+        {image && (
+          <button onClick={() => setImage(null)} className="p-1 hover:bg-zinc-100 rounded-full">
+            <X className="w-4 h-4 text-zinc-400" />
+          </button>
+        )}
+
+        <button 
+          onClick={handleAsk}
+          disabled={loading}
+          className="bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 disabled:opacity-50"
+        >
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ask"}
+        </button>
+      </div>
+    </div>
+  );
+}
