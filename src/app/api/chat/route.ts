@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const imageFile = formData.get("image") as File | null;
 
     // 🔴 FIX: Changed model to 'gemini-1.5-flash' (the correct stable version)
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const systemPrompt = `
       You are 'THE AGENT', a high-end luxury AI Sales Broker for the ARCHIVE (AI.STORE). 
