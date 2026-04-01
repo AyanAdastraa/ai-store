@@ -1,12 +1,12 @@
 "use client";
 import { motion } from "framer-motion";
-import { ShieldAlert, truck, RefreshCcw, Lock } from "lucide-react";
+import { ShieldAlert, Truck, RefreshCcw, Lock } from "lucide-react";
 
 export default function LegalPage() {
   const sections = [
     {
       title: "01 / Shipping Protocol",
-      icon: <truck className="w-5 h-5" />,
+      icon: <Truck className="w-5 h-5" />,
       content: "All physical assets are dispatched via encrypted courier within 48 hours of neural verification. Global transit typically completes within 5-7 business days. Tracking coordinates will be sent to your registered uplink."
     },
     {
