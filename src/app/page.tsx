@@ -1,23 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { products } from "@/lib/products";
 import ProductCard from "@/components/ui/ProductCard";
-import CommandBar from "@/components/ui/CommandBar";
 import { useStore } from "@/context/StoreContext";
+// 🟢 Removed CommandBar import from here
 
 export default function Home() {
-  const { user, isLoaded } = useStore();
-  const router = useRouter();
+  const { isLoaded } = useStore(); 
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    if (isLoaded && !user) router.push("/login");
-  }, [user, isLoaded, router]);
+  }, []);
 
-  if (!mounted || !isLoaded || !user) return null;
+  if (!mounted || !isLoaded) return null;
 
   return (
     <main className="relative min-h-screen bg-background text-foreground pb-64 selection:bg-primary selection:text-primary-foreground">
@@ -71,8 +68,7 @@ export default function Home() {
           ))}
         </div>
       </div>
-
-      <CommandBar />
+      {/* 🟢 Removed CommandBar render from here */}
     </main>
   );
 }

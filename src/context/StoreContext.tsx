@@ -10,8 +10,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [isLoaded, setIsLoaded] = useState(false);
   
-  // NEW: Cart UI State
   const [isCartOpen, setIsCartOpen] = useState(false);
+  // 🟢 NEW: AI Agent State
+  const [isAgentOpen, setIsAgentOpen] = useState(false); 
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("archive_theme") as "light" | "dark" | null;
@@ -41,7 +42,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (product: any) => setCart((prev) => [...prev, product]);
   
-  // NEW: Remove from cart function
   const removeFromCart = (index: number) => {
     setCart((prev) => prev.filter((_, i) => i !== index));
   };
@@ -51,6 +51,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       discount, setDiscount, 
       cart, addToCart, removeFromCart,
       isCartOpen, setIsCartOpen,
+      isAgentOpen, setIsAgentOpen, // 🟢 Exporting it here
       user, login, 
       theme, toggleTheme, 
       isLoaded 

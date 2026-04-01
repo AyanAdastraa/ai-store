@@ -2,8 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 import { products } from "@/lib/products";
 
-// Use the NEXT_PUBLIC prefix so Vercel can see it easily
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || "");
+// 🟢 FIX 1: Removed NEXT_PUBLIC_ for security. It now perfectly matches your .env.local!
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     const message = formData.get("message") as string;
     const imageFile = formData.get("image") as File | null;
 
-    // 🔴 FIX: Changed model to 'gemini-1.5-flash' (the correct stable version)
+    // Make sure you are using a stable model version
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const systemPrompt = `
@@ -28,13 +28,11 @@ export async function POST(req: Request) {
       5. Keep responses under 3 sentences. Brutalist and direct.
     `;
 
-    // Initialize prompt parts with the system instructions and user message
     let promptParts: any[] = [
       { text: systemPrompt },
       { text: message || "Analyze the context." }
     ];
 
-    // Convert image to Base64 if it exists
     if (imageFile && imageFile.size > 0) {
       const arrayBuffer = await imageFile.arrayBuffer();
       const base64Data = Buffer.from(arrayBuffer).toString("base64");
@@ -47,7 +45,6 @@ export async function POST(req: Request) {
       });
     }
 
-    // Generate content
     const result = await model.generateContent(promptParts);
     const response = await result.response;
     const text = response.text();
@@ -56,7 +53,6 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error("NEURAL_LINK_ERROR:", error);
-    // Return a more "on-brand" error message for your UI
     return NextResponse.json(
       { text: "CRITICAL: Neural link severed. Status: " + error.message }, 
       { status: 500 }

@@ -1,71 +1,67 @@
 "use client";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Home, Grid, FileText, Sun, Moon, LogOut, ShoppingBag } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
+import { useSession, signOut } from "next-auth/react";
+// 🟢 Added Sparkles for the Agent button
+import { ShoppingBag, Search, User, LogOut, Sun, Moon, Sparkles } from "lucide-react"; 
+import Link from "next/link";
 
 export default function Toolbar() {
-  const pathname = usePathname();
-  const router = useRouter();
-  
-  // Extract cart state
-  const { theme, toggleTheme, user, cart, setIsCartOpen } = useStore();
-
-  if (pathname === "/login") return null;
-
-  const handleLogout = () => {
-    localStorage.removeItem("archive_user");
-    window.location.href = "/login";
-  };
+  // 🟢 Bring in setIsAgentOpen
+  const { cart, setIsCartOpen, theme, toggleTheme, setIsAgentOpen } = useStore(); 
+  const { data: session } = useSession(); 
 
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-1 p-1.5 rounded-full border border-border bg-background/80 backdrop-blur-xl shadow-2xl transition-all">
-      
-      <Link href="/" className="px-4 py-2 hover:bg-muted rounded-full transition-colors flex items-center gap-2 group">
-        <Home className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-        <span className="text-xs font-bold uppercase tracking-widest hidden md:block">Home</span>
+    <nav className="fixed top-0 left-0 w-full h-20 z-[100] bg-background/80 backdrop-blur-md border-b border-border flex items-center justify-between px-8">
+      {/* Logo */}
+      <Link href="/" className="text-xl font-black uppercase italic tracking-tighter">
+        ARCHIVE<span className="text-primary">.STORE</span>
       </Link>
 
-      <Link href="/shop" className="px-4 py-2 hover:bg-muted rounded-full transition-colors flex items-center gap-2 group">
-        <Grid className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-        <span className="text-xs font-bold uppercase tracking-widest hidden md:block">Shop</span>
-      </Link>
+      {/* Navigation Links */}
+      <div className="hidden md:flex items-center gap-8 text-sm font-bold tracking-widest uppercase">
+        <Link href="/shop" className="hover:text-primary transition-colors">Shop</Link>
+        <Link href="/about" className="hover:text-primary transition-colors">About</Link>
+        <Link href="/legal" className="text-muted-foreground hover:text-foreground transition-colors">Legal</Link>
+      </div>
 
-      <Link href="/about" className="px-4 py-2 hover:bg-muted rounded-full transition-colors flex items-center gap-2 group">
-        <FileText className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-        <span className="text-xs font-bold uppercase tracking-widest hidden md:block">Manifesto</span>
-      </Link>
-
-      <div className="w-[1px] h-6 bg-border mx-2" />
-
-      {/* NEW: Cart Toggle Button */}
-      <button 
-        onClick={() => setIsCartOpen(true)}
-        className="relative p-3 hover:bg-muted rounded-full transition-colors flex items-center justify-center group"
-      >
-        <ShoppingBag className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
-        {/* Pulsing Dot if items exist */}
-        {cart?.length > 0 && (
-          <span className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
-        )}
-      </button>
-
-      <button 
-        onClick={toggleTheme}
-        className="p-3 hover:bg-muted rounded-full transition-colors flex items-center justify-center"
-      >
-        {theme === "dark" ? <Sun className="w-4 h-4 text-muted-foreground" /> : <Moon className="w-4 h-4 text-muted-foreground" />}
-      </button>
-
-      {user && (
-        <button 
-          onClick={handleLogout}
-          className="p-3 hover:bg-destructive/10 text-destructive rounded-full transition-colors flex items-center justify-center ml-1"
-          title="Log Out"
-        >
-          <LogOut className="w-4 h-4" />
+      {/* Actions */}
+      <div className="flex items-center gap-6">
+        
+        {/* 🟢 The New Agent Trigger Button */}
+        <button onClick={() => setIsAgentOpen(true)} className="flex items-center gap-2 hover:text-primary transition-colors" title="Neural Agent">
+          <Sparkles className="w-5 h-5" />
+          <span className="hidden lg:block text-[10px] font-bold tracking-[0.2em] uppercase">Agent</span>
         </button>
-      )}
+
+        <button onClick={toggleTheme} className="hover:text-primary transition-colors" title="Toggle Theme">
+          {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        </button>
+
+        <button className="hover:text-primary transition-colors"><Search className="w-5 h-5" /></button>
+        
+        <button onClick={() => setIsCartOpen(true)} className="relative p-2 border border-border hover:border-primary transition-colors">
+          <ShoppingBag className="w-5 h-5" />
+          {cart.length > 0 && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[8px] font-black flex items-center justify-center rounded-full">
+              {cart.length}
+            </span>
+          )}
+        </button>
+
+        {/* AUTH UI SECTION */}
+        {session ? (
+          <div className="flex items-center gap-4 border-l border-border pl-6">
+            <img src={session.user?.image || ""} alt="User" className="w-8 h-8 grayscale hover:grayscale-0 transition-all border border-border" />
+            <button onClick={() => signOut()} className="p-2 text-muted-foreground hover:text-destructive transition-colors">
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <Link href="/login" className="p-2 border border-border hover:bg-primary hover:text-primary-foreground transition-all">
+            <User className="w-5 h-5" />
+          </Link>
+        )}
+      </div>
     </nav>
   );
 }

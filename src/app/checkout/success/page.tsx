@@ -3,13 +3,17 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, ArrowRight, Download } from "lucide-react";
 import Link from "next/link";
-import Confetti from "react-confetti"; // Optional: npm install react-confetti
+import Confetti from "react-confetti"; 
 
 export default function SuccessPage() {
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  // 🟢 1. Add state for the order number
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
 
   useEffect(() => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    // 🟢 2. Generate the random number ONLY on the client
+    setOrderNumber(Math.floor(Math.random() * 1000000).toString());
   }, []);
 
   return (
@@ -30,7 +34,8 @@ export default function SuccessPage() {
         </h1>
         
         <p className="text-muted-foreground font-medium mb-12 uppercase tracking-widest text-xs">
-          Order Protocol: #ARC-{Math.floor(Math.random() * 1000000)}
+          {/* 🟢 3. Safely display the number, falling back to a placeholder during the server render */}
+          Order Protocol: #ARC-{orderNumber || "GENERATING..."}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
