@@ -9,6 +9,8 @@ export default function CommandBar() {
   const [aiResponse, setAiResponse] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Failsafe extraction in case store isn't fully mounted
   const { setDiscount } = useStore();
 
   const handleAsk = async () => {
@@ -22,16 +24,20 @@ export default function CommandBar() {
 
       const res = await fetch('/api/chat', {
         method: 'POST',
-        body: formData, // Sending as FormData for image support
+        body: formData, 
       });
       
       const data = await res.json();
       setAiResponse(data.text);
 
-      if (data.text.includes("10%")) setDiscount(10);
-      if (data.text.includes("15%")) setDiscount(15);
+      // Apply negotiated discounts safely
+      if (setDiscount) {
+        if (data.text.includes("10%")) setDiscount(10);
+        if (data.text.includes("15%")) setDiscount(15);
+      }
     } catch (error) {
       console.error("Upload Error:", error);
+      setAiResponse("System Error: Unable to reach the AI agent. Please try again.");
     } finally {
       setLoading(false);
       setInput("");
@@ -42,18 +48,18 @@ export default function CommandBar() {
   return (
     <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-xl px-4 z-50">
       {aiResponse && (
-        <div className="mb-4 p-5 bg-white/95 backdrop-blur-md border border-zinc-200 rounded-2xl shadow-2xl text-sm leading-relaxed animate-in fade-in slide-in-from-bottom-4">
-           <span className="font-bold text-purple-600 block mb-1 underline decoration-purple-200 uppercase text-[10px] tracking-widest">AI Stylist</span>
+        <div className="mb-4 p-5 bg-background/95 backdrop-blur-md border border-border rounded-2xl shadow-2xl text-sm leading-relaxed animate-in fade-in slide-in-from-bottom-4 text-foreground">
+           <span className="font-bold text-primary block mb-1 underline decoration-primary/20 uppercase text-[10px] tracking-widest">AI Agent</span>
           {aiResponse}
         </div>
       )}
 
-      <div className="bg-white/80 backdrop-blur-xl border border-zinc-200 shadow-2xl rounded-2xl p-2 flex items-center gap-2 group transition-all duration-300">
+      <div className="bg-background/80 backdrop-blur-xl border border-border shadow-2xl rounded-2xl p-2 flex items-center gap-2 group transition-all duration-300">
         
         {/* 📸 Image Upload Logic */}
         <button 
           onClick={() => fileInputRef.current?.click()}
-          className={`p-2 rounded-xl transition-colors ${image ? 'bg-green-100 text-green-600' : 'bg-zinc-100 text-zinc-500 hover:bg-zinc-200'}`}
+          className={`p-2 rounded-xl transition-colors ${image ? 'bg-green-500/20 text-green-500' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
         >
           <Camera className="w-5 h-5" />
         </button>
@@ -68,20 +74,20 @@ export default function CommandBar() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
-          placeholder={image ? `Image "${image.name}" attached...` : "Ask for a deal..."} 
-          className="flex-1 bg-transparent outline-none text-sm p-2"
+          placeholder={image ? `Image "${image.name}" attached...` : "Negotiate a deal..."} 
+          className="flex-1 bg-transparent outline-none text-sm p-2 text-foreground placeholder:text-muted-foreground"
         />
 
         {image && (
-          <button onClick={() => setImage(null)} className="p-1 hover:bg-zinc-100 rounded-full">
-            <X className="w-4 h-4 text-zinc-400" />
+          <button onClick={() => setImage(null)} className="p-1 hover:bg-muted rounded-full">
+            <X className="w-4 h-4 text-muted-foreground" />
           </button>
         )}
 
         <button 
           onClick={handleAsk}
           disabled={loading}
-          className="bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 disabled:opacity-50"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 disabled:opacity-50"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ask"}
         </button>

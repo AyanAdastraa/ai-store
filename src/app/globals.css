@@ -120,11 +120,32 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    
+    /* 🔴 CRITICAL FOR CUSTOM CURSOR: Hides the default computer mouse pointer everywhere */
+    cursor: none !important; 
+    
+    /* Smooths out fonts so they look like high-end print typography */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+  
   html {
     @apply font-sans;
   }
+  
+  body {
+    /* 🔴 Premium transition curve for Dark/Light mode flipping */
+    @apply bg-background text-foreground transition-colors duration-[1.5s] ease-[cubic-bezier(0.23,1,0.32,1)];
+  }
+}
+
+/* 🔴 Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-background;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/20 rounded-full;
 }

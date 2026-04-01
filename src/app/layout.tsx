@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/context/StoreContext";
+import Toolbar from "@/components/ui/Toolbar"; 
+import CartDrawer from "@/components/ui/CartDrawer"; 
+import CustomCursor from "@/components/ui/CustomCursor"; // <-- Import it
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AI Store | 2026",
-  description: "Next-gen shopping with AI agents",
+  title: "Archive | 2026",
+  description: "Neural-negotiated marketplace.",
 };
 
 export default function RootLayout({
@@ -16,9 +19,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className} antialiased bg-background text-foreground transition-colors duration-700 overflow-x-hidden`}>
         <StoreProvider>
+          <CustomCursor /> {/* <-- Mount it here */}
+          <Toolbar />
+          <CartDrawer />
           {children}
         </StoreProvider>
       </body>
