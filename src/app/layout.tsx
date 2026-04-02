@@ -5,7 +5,6 @@ import { Providers } from "@/components/ui/Providers";
 import Toolbar from "@/components/ui/Toolbar"; 
 import CartDrawer from "@/components/ui/CartDrawer"; 
 import CustomCursor from "@/components/ui/CustomCursor"; 
-// 🟢 1. Import the CommandBar (your new AI Agent) here
 import CommandBar from "@/components/ui/CommandBar"; 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -15,24 +14,26 @@ export const metadata: Metadata = {
   description: "Neural-negotiated marketplace.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased bg-background text-foreground transition-colors duration-[1.5s] ease-[cubic-bezier(0.23,1,0.32,1)] overflow-x-hidden cursor-none`}>
+      <body className={`${inter.className} antialiased bg-background text-foreground overflow-x-hidden min-h-[100dvh]`}>
         <Providers>
-          <CustomCursor /> 
+          
+          {/* Hides the custom cursor on mobile to fix touch bugs */}
+          <div className="hidden md:block">
+            <CustomCursor /> 
+          </div>
+
           <Toolbar />
           <CartDrawer />
-          {/* 🟢 2. Render the Agent globally so it exists on every page */}
           <CommandBar /> 
           
-          <main className="relative z-10 pt-32 min-h-screen">
+          {/* Main Content Safe Zone */}
+          <main className="relative z-10 pt-24 md:pt-32 min-h-[100dvh]">
             {children}
           </main>
+
         </Providers>
       </body>
     </html>
