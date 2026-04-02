@@ -1,12 +1,11 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-export default auth((req) => {
+// 🟢 Changed from "export default" to "export const proxy" for Next.js 16
+export const proxy = auth((req) => {
   const isLoggedIn = !!req.auth;
-  // 🟢 Protects any route starting with /checkout
   const isProtectedPage = req.nextUrl.pathname.startsWith("/checkout");
 
-  // If trying to access a protected route without a session, redirect to login
   if (isProtectedPage && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
