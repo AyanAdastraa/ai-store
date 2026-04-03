@@ -59,7 +59,65 @@ export async function POST(req: Request) {
     }
 
     const result = await model.generateContent(promptData);
-    const jsonDecision = JSON.parse(result.response.text());
+    let rawText = result.response.text();
+    
+    // Safety check: LLMs occasionally wrap json in markdown blocks
+    rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    
+    let jsonDecision;
+    try {
+      jsonDecision = JSON.parse(rawText);
+    } catch (parseError) {
+      console.error("JSON Parsing Error from AI:", rawText);
+      // Hard fallback if the AI generates complete garbage
+      jsonDecision = {
+        price: null,
+        range: { min_acceptable: null, max_realistic: null },
+        reason: "Neural matrix instability. The AI response was malformed. Please restate your parameters.",
+        confidence: "low",
+        status: "error",
+        discount_percentage: 0,
+        product_name: null
+      };
+    }
+
+    // Attempt to log the interaction securely to the DB if the user is authenticated
+    try {
+      const { auth } = require("@/auth");
+      const session = await auth();
+      if (session?.user?.id) {
+        // Find product ID dynamically if AI recognized it
+        let dbProductId = null;
+        if (jsonDecision.product_name) {
+          const matchedItem = rawProducts.find((p: any) => p.name.toLowerCase() === jsonDecision.product_name.toLowerCase());
+          if (matchedItem) dbProductId = matchedItem.id;
+        }
+
+        // Store User's input
+        await prisma.negotiationLog.create({
+          data: {
+            userId: session.user.id,
+            productId: dbProductId,
+            role: "user",
+            message: message,
+            metadata: JSON.stringify(contextState)
+          }
+        });
+        
+        // Store AI's response
+        await prisma.negotiationLog.create({
+          data: {
+            userId: session.user.id,
+            productId: dbProductId,
+            role: "ai",
+            message: jsonDecision.reason,
+            metadata: JSON.stringify(jsonDecision)
+          }
+        });
+      }
+    } catch (dbLogErr) {
+      console.error("Database logging bypassed (non-critical):", dbLogErr);
+    }
 
     return NextResponse.json(jsonDecision);
 

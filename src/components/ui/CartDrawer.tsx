@@ -15,11 +15,27 @@ export default function CartDrawer() {
   const totalDiscount = subtotal - finalTotal;
 
   // Checkout Protocol
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart.length === 0) return;
-    if (setCart) setCart([]); // Wipe state for success
-    setIsCartOpen(false);
-    router.push("/checkout/success");
+    try {
+      await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cart,
+          totalAmount: finalTotal,
+          totalSaved: totalDiscount
+        })
+      });
+      if (setCart) setCart([]); // Wipe state for success
+      setIsCartOpen(false);
+      router.push("/checkout/success");
+    } catch (e) {
+      console.error("Checkout failed:", e);
+      alert("Checkout failed. Please try again.");
+    }
   };
 
   return (

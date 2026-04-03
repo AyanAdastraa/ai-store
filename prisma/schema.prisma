@@ -15,9 +15,10 @@ model Product {
   description String
   price       Float
   image       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  orderItems  OrderItem[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  orderItems   OrderItem[]
+  negotiations NegotiationLog[]
 }
 
 // 🟢 NEXT-AUTH (AUTH.JS) MODELS
@@ -30,6 +31,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   orders        Order[]
+  negotiations  NegotiationLog[]
 }
 
 model Account {
@@ -89,4 +91,17 @@ model OrderItem {
 
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id])
+}
+
+model NegotiationLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  productId String?
+  role      String   // "user" or "ai"
+  message   String
+  metadata  String?  // stringified JSON snapshot of state
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 }
