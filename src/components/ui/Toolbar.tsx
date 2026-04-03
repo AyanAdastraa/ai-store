@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useStore } from "@/context/StoreContext";
 import { useSession, signOut } from "next-auth/react";
-import { ShoppingBag, User, LogOut, Sun, Moon, Sparkles, Menu, X } from "lucide-react"; 
+import { ShoppingBag, User, LogOut, Sun, Moon, Sparkles, Menu, X, Database } from "lucide-react"; 
 import Link from "next/link";
 
 export default function Toolbar() {
@@ -27,7 +27,12 @@ export default function Toolbar() {
           <Link href="/shop" className="hover:text-primary transition-colors">Shop</Link>
           <Link href="/about" className="hover:text-primary transition-colors">About</Link>
           {session && (
-            <Link href="/admin" className="text-destructive hover:text-red-400 transition-colors">Admin</Link>
+            <>
+              <Link href="/dashboard" className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2">
+                <Database className="w-4 h-4" /> Database
+              </Link>
+              <Link href="/admin" className="text-destructive hover:text-red-400 transition-colors">Admin</Link>
+            </>
           )}
           <Link href="/legal" className="text-muted-foreground hover:text-foreground transition-colors">Legal</Link>
         </div>
@@ -81,7 +86,10 @@ export default function Toolbar() {
           <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="text-5xl font-black uppercase italic tracking-tighter">Shop</Link>
           <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-5xl font-black uppercase italic tracking-tighter">About</Link>
           {session && (
-            <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="text-5xl font-black uppercase italic tracking-tighter text-destructive">Admin</Link>
+            <>
+              <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="text-5xl font-black uppercase italic tracking-tighter text-primary">Database</Link>
+              <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="text-5xl font-black uppercase italic tracking-tighter text-destructive">Admin</Link>
+            </>
           )}
           <Link href="/legal" onClick={() => setIsMobileMenuOpen(false)} className="text-2xl text-muted-foreground font-black uppercase italic tracking-tighter">Legal</Link>
 
