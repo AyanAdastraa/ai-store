@@ -26,6 +26,9 @@ export default function Toolbar() {
         <div className="hidden md:flex items-center gap-8 text-sm font-bold tracking-widest uppercase">
           <Link href="/shop" className="hover:text-primary transition-colors">Shop</Link>
           <Link href="/about" className="hover:text-primary transition-colors">About</Link>
+          {session && (
+            <Link href="/admin" className="text-destructive hover:text-red-400 transition-colors">Admin</Link>
+          )}
           <Link href="/legal" className="text-muted-foreground hover:text-foreground transition-colors">Legal</Link>
         </div>
 
@@ -77,6 +80,9 @@ export default function Toolbar() {
         <div className="fixed inset-0 z-[90] h-[100dvh] w-full bg-background/95 backdrop-blur-2xl flex flex-col items-center justify-center gap-10 md:hidden pt-20 animate-in fade-in duration-300">
           <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="text-5xl font-black uppercase italic tracking-tighter">Shop</Link>
           <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-5xl font-black uppercase italic tracking-tighter">About</Link>
+          {session && (
+            <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="text-5xl font-black uppercase italic tracking-tighter text-destructive">Admin</Link>
+          )}
           <Link href="/legal" onClick={() => setIsMobileMenuOpen(false)} className="text-2xl text-muted-foreground font-black uppercase italic tracking-tighter">Legal</Link>
 
           <div className="mt-8 flex flex-col items-center gap-6 border-t border-border/50 pt-8 w-full max-w-xs">
