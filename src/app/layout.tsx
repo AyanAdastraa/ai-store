@@ -7,6 +7,8 @@ import CartDrawer from "@/components/ui/CartDrawer";
 import CustomCursor from "@/components/ui/CustomCursor"; 
 import CommandBar from "@/components/ui/CommandBar"; 
 
+import { SmoothScroll } from "@/components/ui/SmoothScroll";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -19,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} antialiased bg-background text-foreground overflow-x-hidden min-h-[100dvh]`}>
         <Providers>
+          <SmoothScroll>
           
           {/* Hides the custom cursor on mobile to fix touch bugs */}
           <div className="hidden md:block">
@@ -34,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </main>
 
+          </SmoothScroll>
         </Providers>
       </body>
     </html>

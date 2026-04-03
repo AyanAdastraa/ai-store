@@ -11,6 +11,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAgentOpen, setIsAgentOpen] = useState(false); 
 
+  const [products, setProducts] = useState<any[]>([]);
+
   useEffect(() => {
     // Safely load theme on the client to prevent hydration mismatch
     const savedTheme = localStorage.getItem("archive_theme") as "light" | "dark" | null;
@@ -21,7 +23,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setTheme("dark");
       document.documentElement.classList.add("dark");
     }
-    setIsLoaded(true);
+    
+    // Fetch products from Database API
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const data = await res.json();
+          setProducts(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch products", err);
+      }
+      setIsLoaded(true);
+    };
+
+    fetchProducts();
   }, []);
 
   const toggleTheme = () => {
@@ -41,7 +58,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       isCartOpen, setIsCartOpen,
       isAgentOpen, setIsAgentOpen,
       theme, toggleTheme, 
-      isLoaded 
+      isLoaded,
+      products
     }}>
       {children}
     </StoreContext.Provider>

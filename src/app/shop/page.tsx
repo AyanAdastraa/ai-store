@@ -1,10 +1,11 @@
 "use client";
 import { useState, useMemo } from "react";
 import { Search, SlidersHorizontal, ArrowDownAZ, ArrowUpZA } from "lucide-react";
-import { products } from "@/lib/products";
 import ProductCard from "@/components/ui/ProductCard";
+import { useStore } from "@/context/StoreContext";
 
 export default function ShopPage() {
+  const { products } = useStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"default" | "low" | "high">("default");
 

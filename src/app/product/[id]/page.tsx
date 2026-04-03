@@ -2,16 +2,18 @@
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ShoppingCart, Sparkles } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
-import { products } from "@/lib/products";
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { discount, addToCart } = useStore();
+  const { discount, addToCart, products } = useStore();
 
   // Find the exact product based on the URL parameter
-  // If someone types a random ID, it falls back to the first product to prevent a crash
-  const product = products.find((p) => p.id.toString() === params.id) || products[0];
+  const product = products.find((p: any) => p.id.toString() === params.id) || products[0];
+
+  if (!product) {
+    return <main className="min-h-screen bg-background text-foreground flex items-center justify-center pt-32">Loading Neural DB...</main>;
+  }
 
   // AI Valuation Logic
   const activeDiscount = discount || 0;

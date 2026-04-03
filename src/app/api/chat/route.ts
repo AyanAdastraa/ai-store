@@ -1,19 +1,22 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
-import { products } from "@/lib/products";
+import { prisma } from "@/lib/prisma";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
+    const rawProducts = await prisma.product.findMany();
+    const products = rawProducts.map((p: any) => ({ ...p, id: p.legacyId }));
+
     const formData = await req.formData();
     const message = formData.get("message") as string;
     const contextStateStr = formData.get("contextState") as string;
-    const historyStr = formData.get("history") as string; 
+    const historyStr = formData.get("history") as string;
     const image = formData.get("image") as File | null;
 
     const contextState = contextStateStr ? JSON.parse(contextStateStr) : {};
-    const chatHistory = historyStr ? JSON.parse(historyStr) : []; 
+    const chatHistory = historyStr ? JSON.parse(historyStr) : [];
 
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash", // Locked to stable 2.5
@@ -62,6 +65,21 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error("AI Decision Error:", error);
+
+    // 🟢 Detect Rate Limiting (429)
+    if (error?.status === 429 || error?.message?.includes("429")) {
+      return NextResponse.json({
+        price: null,
+        range: { min_acceptable: null, max_realistic: null },
+        reason: "Neural link overloaded. Please wait 60 seconds before transmitting another offer.",
+        confidence: "low",
+        status: "error", // The frontend handles 'error' by locking the inputs safely
+        discount_percentage: 0,
+        product_name: null
+      }, { status: 429 });
+    }
+
+    // Generic fallback for all other crashes
     return NextResponse.json({
       price: null,
       range: { min_acceptable: null, max_realistic: null },
@@ -71,5 +89,5 @@ export async function POST(req: Request) {
       discount_percentage: 0,
       product_name: null
     }, { status: 500 });
-  }
-}
+  } // <-- Closes the catch block
+} // <-- 🟢 ADDED: Closes the main export async function POST block

@@ -1,13 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { products } from "@/lib/products";
 import ProductCard from "@/components/ui/ProductCard";
 import { useStore } from "@/context/StoreContext";
 // 🟢 Removed CommandBar import from here
 
 export default function Home() {
-  const { isLoaded } = useStore(); 
+  const { isLoaded, products } = useStore(); 
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -17,11 +16,15 @@ export default function Home() {
   if (!mounted || !isLoaded) return null;
 
   return (
-    <main className="relative min-h-screen bg-background text-foreground pb-64 selection:bg-primary selection:text-primary-foreground">
+    <main className="relative min-h-screen bg-background text-foreground pb-64 selection:bg-primary selection:text-primary-foreground overflow-hidden">
       
-      <div className="max-w-[1800px] mx-auto px-6 md:px-16 pt-64">
+      {/* 🔴 Ambient Background Glow */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-primary/20 rounded-full blur-[150px] pointer-events-none mix-blend-screen opacity-50 dark:opacity-30 animate-pulse duration-1000" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[40vw] h-[40vw] bg-blue-500/10 rounded-full blur-[150px] pointer-events-none mix-blend-screen opacity-50 dark:opacity-20" />
+
+      <div className="relative max-w-[1800px] mx-auto px-6 md:px-16 pt-64 z-10">
         
-        {/* Massive Overlapping Typography */}
+        {/* Massive Overlapping Fluid Typography */}
         <header className="relative mb-64 z-10">
           <motion.h1 
             initial={{ opacity: 0, x: -100 }}
@@ -50,8 +53,9 @@ export default function Home() {
 
         {/* Heavy Scroll Physics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-x-12 gap-y-48">
-          {products.map((p, i) => (
-            <motion.div 
+          {products && products.length > 0 ? (
+            products.map((p: any, i: number) => (
+              <motion.div 
               key={p.id} 
               initial={{ y: 150, opacity: 0, filter: "blur(10px)" }}
               whileInView={{ y: 0, opacity: 1, filter: "blur(0px)" }}
@@ -65,7 +69,12 @@ export default function Home() {
             >
               <ProductCard product={p} />
             </motion.div>
-          ))}
+            ))
+          ) : (
+            <div className="col-span-12 text-center text-muted-foreground opacity-50 py-24">
+              [ NO INVENTORY FOUND IN NEURAL DB ]
+            </div>
+          )}
         </div>
       </div>
       {/* 🟢 Removed CommandBar render from here */}
